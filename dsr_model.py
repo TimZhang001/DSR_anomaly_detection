@@ -54,11 +54,11 @@ class FeatureEncoder(nn.Module):
             nn.ReLU(inplace=True))
 
     def forward(self, x):
-        b1 = self.block1(x)
+        b1  = self.block1(x)
         mp1 = self.mp1(b1)
-        b2 = self.block2(mp1)
+        b2  = self.block2(mp1)
         mp2 = self.mp2(b2)
-        b3 = self.block3(mp2)
+        b3  = self.block3(mp2)
         return b1, b2, b3
 
 class FeatureDecoder(nn.Module):
@@ -349,7 +349,7 @@ class AnomalyDetectionModule(nn.Module):
         self.unet = UnetModel(in_channels=6, out_channels=2, base_width=64)
     def forward(self, image_real, image_anomaly):
         img_x = torch.cat((image_real, image_anomaly),dim=1)
-        x = self.unet(img_x)
+        x     = self.unet(img_x)
         return x
 
 

@@ -122,47 +122,38 @@ def train_on_device(obj_names, mvtec_path, run_basename):
         commitment_cost = 0.25
         decay = 0.99
         model_vq = DiscreteLatentModel(num_hiddens, num_residual_layers, num_residual_hiddens,
-                      num_embeddings, embedding_dim,
-                      commitment_cost, decay)
+                                       num_embeddings, embedding_dim,
+                                       commitment_cost, decay)
         model_vq.cuda()
-        model_vq.load_state_dict(
-            torch.load("./checkpoints/" + run_name_pre + ".pckl", map_location='cuda:0'))
+        model_vq.load_state_dict(torch.load("./checkpoints/" + run_name_pre + ".pckl", map_location='cuda:0'))
         model_vq.eval()
 
-
-
         sub_res_hi_module = SubspaceRestrictionModule(embedding_size=embedding_dim)
-        sub_res_hi_module.load_state_dict(
-            torch.load("./checkpoints/" + run_name + "subspace_restriction_hi_"+obj_name+".pckl", map_location='cuda:0'))
+        sub_res_hi_module.load_state_dict(torch.load("./checkpoints/" + run_name + "subspace_restriction_hi_"+obj_name+".pckl", map_location='cuda:0'))
         sub_res_hi_module.cuda()
         sub_res_hi_module.eval()
 
         sub_res_lo_module = SubspaceRestrictionModule(embedding_size=embedding_dim)
-        sub_res_lo_module.load_state_dict(
-            torch.load("./checkpoints/" + run_name + "subspace_restriction_lo_"+obj_name+".pckl", map_location='cuda:0'))
+        sub_res_lo_module.load_state_dict(torch.load("./checkpoints/" + run_name + "subspace_restriction_lo_"+obj_name+".pckl", map_location='cuda:0'))
         sub_res_lo_module.cuda()
         sub_res_lo_module.eval()
 
 
         anom_det_module = AnomalyDetectionModule(embedding_size=embedding_dim)
-        anom_det_module.load_state_dict(
-            torch.load("./checkpoints/" + run_name + "anomaly_det_module_"+obj_name+".pckl", map_location='cuda:0'))
+        anom_det_module.load_state_dict(torch.load("./checkpoints/" + run_name + "anomaly_det_module_"+obj_name+".pckl", map_location='cuda:0'))
         anom_det_module.cuda()
         anom_det_module.eval()
 
         upsample_module = UpsamplingModule(embedding_size=embedding_dim)
-        upsample_module.load_state_dict(
-            torch.load("./checkpoints/" + run_name + "upsample_module_"+obj_name+".pckl", map_location='cuda:0'))
+        upsample_module.load_state_dict(torch.load("./checkpoints/" + run_name + "upsample_module_"+obj_name+".pckl", map_location='cuda:0'))
         upsample_module.cuda()
         upsample_module.eval()
 
-
         image_recon_module = ImageReconstructionNetwork(embedding_dim * 2,
-                   num_hiddens,
-                   num_residual_layers,
-                   num_residual_hiddens)
-        image_recon_module.load_state_dict(
-            torch.load("./checkpoints/" + run_name + "image_recon_module_"+obj_name+".pckl", map_location='cuda:0'), strict=False)
+                                                        num_hiddens,
+                                                        num_residual_layers,
+                                                        num_residual_hiddens)
+        image_recon_module.load_state_dict(torch.load("./checkpoints/" + run_name + "image_recon_module_"+obj_name+".pckl", map_location='cuda:0'), strict=False)
         image_recon_module.cuda()
         image_recon_module.eval()
 

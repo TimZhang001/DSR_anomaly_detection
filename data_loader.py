@@ -42,13 +42,13 @@ class TrainImageOnlyDataset(Dataset):
 class TrainWholeImageDataset(Dataset):
 
     def __init__(self, root_dir, resize_shape=None, perlin_augment=False):
-        self.root_dir = root_dir
+        self.root_dir       = root_dir
         self.perlin_augment = perlin_augment
 
-        self.resize_shape=resize_shape
+        self.resize_shape = resize_shape
 
         self.images_f = sorted(glob.glob(root_dir+"/*.png"))
-        self.images = np.zeros((len(self.images_f),self.resize_shape[0],self.resize_shape[1],3))
+        self.images   = np.zeros((len(self.images_f),self.resize_shape[0],self.resize_shape[1],3))
 
         for i,img_path in enumerate(self.images_f):
             img = cv2.imread(img_path)
@@ -56,11 +56,8 @@ class TrainWholeImageDataset(Dataset):
             self.images[i]=img
 
 
-        self.orig_augment = iaa.Sequential([
-                      iaa.Affine(rotate=(-90, 90))
-                      ])
-
-        self.rot = iaa.Sequential([iaa.Affine(rotate=(-90, 90))])
+        self.orig_augment = iaa.Sequential([iaa.Affine(rotate=(-90, 90))])
+        self.rot          = iaa.Sequential([iaa.Affine(rotate=(-90, 90))])
 
     def __len__(self):
         # arbitrary number- each iteration is sampled in __getitem__
@@ -82,20 +79,19 @@ class TrainWholeImageDataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        new_idx = torch.randint(0, len(self.images), (1,)).numpy()[0]
-        image = self.transform_image(self.images[new_idx])
+        new_idx     = torch.randint(0, len(self.images), (1,)).numpy()[0]
+        image       = self.transform_image(self.images[new_idx])
         has_anomaly = np.array([0], dtype=np.float32)
 
         min_perlin_scale = 0
-        perlin_scale = 6
-        perlin_scalex = 2 ** (torch.randint(min_perlin_scale, perlin_scale, (1,)).numpy()[0])
-        perlin_scaley = 2 ** (torch.randint(min_perlin_scale, perlin_scale, (1,)).numpy()[0])
-        threshold = 0.5
-        perlin_noise_np = rand_perlin_2d_np((self.resize_shape[0], self.resize_shape[1]),
-                                            (perlin_scalex, perlin_scaley))
+        perlin_scale     = 6
+        perlin_scalex    = 2 ** (torch.randint(min_perlin_scale, perlin_scale, (1,)).numpy()[0])
+        perlin_scaley    = 2 ** (torch.randint(min_perlin_scale, perlin_scale, (1,)).numpy()[0])
+        threshold        = 0.5
+        perlin_noise_np  = rand_perlin_2d_np((self.resize_shape[0], self.resize_shape[1]),
+                                             (perlin_scalex, perlin_scaley))
         perlin_noise_np = self.rot(image=perlin_noise_np)
-        perlin_thr = np.where(perlin_noise_np > threshold, np.ones_like(perlin_noise_np),
-                              np.zeros_like(perlin_noise_np))
+        perlin_thr = np.where(perlin_noise_np > threshold, np.ones_like(perlin_noise_np), np.zeros_like(perlin_noise_np))
         perlin_thr = torch.from_numpy(perlin_thr)
         perlin_thr = perlin_thr.unsqueeze(0)
         no_anomaly = torch.rand(1).numpy()[0] > 0.5
